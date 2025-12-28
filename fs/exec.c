@@ -80,6 +80,12 @@ extern bool ksu_su_compat_enabled;
 extern bool ksu_execveat_hook;
 extern bool susfs_is_boot_completed_triggered;
 extern bool __ksu_is_allow_uid_for_current(uid_t uid);
+#ifdef CONFIG_KSU_SUSFS
+extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
+			void *envp, int *flags);
+extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,
+				void *envp, int *flags);
+#endif
 static LIST_HEAD(formats);
 static DEFINE_RWLOCK(binfmt_lock);
 
@@ -1922,16 +1928,6 @@ out_ret:
 	return retval;
 }
 
-#ifdef CONFIG_KSU_SUSFS
-extern bool ksu_execveat_hook __read_mostly;
-extern bool ksu_su_compat_enabled __read_mostly;
-extern bool susfs_is_boot_completed_triggered __read_mostly;
-extern bool __ksu_is_allow_uid_for_current(uid_t uid);
-extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
-			void *envp, int *flags);
-extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,
-				void *envp, int *flags);
-#endif
 
 static int do_execveat_common(int fd, struct filename *filename,
 			      struct user_arg_ptr argv,
