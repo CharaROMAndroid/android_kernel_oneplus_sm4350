@@ -3716,11 +3716,6 @@ static inline unsigned long cfs_rq_load_avg(struct cfs_rq *cfs_rq)
 
 static int sched_balance_newidle(struct rq *this_rq, struct rq_flags *rf);
 
-static inline unsigned long task_util(struct task_struct *p)
-{
-	return READ_ONCE(p->se.avg.util_avg);
-}
-
 static inline unsigned long _task_util_est(struct task_struct *p)
 {
 	struct util_est ue = READ_ONCE(p->se.avg.util_est);
@@ -4042,7 +4037,11 @@ attach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags
 static inline void
 detach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *se) {}
 
+<<<<<<< HEAD
 static inline int sched_balance_newidle(struct rq *rq, struct rq_flags *rf)
+=======
+static inline int idle_balance(struct rq *rq, struct rq_flags *rf)
+>>>>>>> parent of d8dd04003ccc (sched: Make newidle_balance() static again)
 {
 	return 0;
 }
@@ -11518,7 +11517,11 @@ static inline bool silver_has_big_tasks(void)
  * sched_balance_newidle is called by schedule() if this_cpu is about to become
  * idle. Attempts to pull tasks from other CPUs.
  */
+<<<<<<< HEAD
 static int sched_balance_newidle(struct rq *this_rq, struct rq_flags *rf)
+=======
+int newidle_balance(struct rq *this_rq, struct rq_flags *rf)
+>>>>>>> parent of d8dd04003ccc (sched: Make newidle_balance() static again)
 {
 	unsigned long next_balance = jiffies + HZ;
 	int this_cpu = this_rq->cpu;
