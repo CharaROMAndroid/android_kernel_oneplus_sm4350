@@ -11517,11 +11517,7 @@ static inline bool silver_has_big_tasks(void)
  * sched_balance_newidle is called by schedule() if this_cpu is about to become
  * idle. Attempts to pull tasks from other CPUs.
  */
-<<<<<<< HEAD
 static int sched_balance_newidle(struct rq *this_rq, struct rq_flags *rf)
-=======
-int newidle_balance(struct rq *this_rq, struct rq_flags *rf)
->>>>>>> parent of d8dd04003ccc (sched: Make newidle_balance() static again)
 {
 	unsigned long next_balance = jiffies + HZ;
 	int this_cpu = this_rq->cpu;
