@@ -656,8 +656,7 @@ struct sched_entity *__pick_last_entity(struct cfs_rq *cfs_rq)
  */
 
 int sched_proc_update_handler(struct ctl_table *table, int write,
-		void __user *buffer, size_t *lenp,
-		loff_t *ppos)
+		void *buffer, size_t *lenp, loff_t *ppos)
 {
 	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
 	unsigned int factor = get_update_sysctl_factor();
@@ -4037,11 +4036,7 @@ attach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags
 static inline void
 detach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *se) {}
 
-<<<<<<< HEAD
 static inline int sched_balance_newidle(struct rq *rq, struct rq_flags *rf)
-=======
-static inline int idle_balance(struct rq *rq, struct rq_flags *rf)
->>>>>>> parent of d8dd04003ccc (sched: Make newidle_balance() static again)
 {
 	return 0;
 }
