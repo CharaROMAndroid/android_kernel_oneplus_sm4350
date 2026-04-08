@@ -1724,16 +1724,16 @@ static ssize_t disksize_store(struct device *dev,
 	struct zram *zram = dev_to_zram(dev);
 	int err;
 
+	disksize = 0;
 	{
-		u64 ram_bytes = (u64)totalram_pages() << PAGE_SHIFT;
-		/* Maximum safe value: ram_bytes * 3/2 must not exceed U64_MAX */
-		u64 max_safe = U64_MAX / 3ULL * 2ULL;
+    	const u64 max_u64 = (u64)-1;
+    	u64 ram_bytes = (u64)totalram_pages() << PAGE_SHIFT;
 
-		if (ram_bytes > max_safe)
-			disksize = U64_MAX;
-		else
-			/* Use addition instead of multiplication to avoid overflow */
-			disksize = ram_bytes + (ram_bytes >> 1);
+    	/* Prevent overflow for extremely large RAM devices */
+    	if (ram_bytes > max_u64 / 3ULL)
+        	disksize = max_u64;
+    	else
+        	disksize = (ram_bytes * 3ULL) / 2ULL;
 	}
 
 
