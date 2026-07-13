@@ -475,16 +475,8 @@ static int blkcg_reset_stats(struct cgroup_subsys_state *css,
 	 * anyway.  If you get hit by a race, retry.
 	 */
 	hlist_for_each_entry(blkg, &blkcg->blkg_list, blkcg_node) {
-		for_each_possible_cpu(cpu) {
-			struct blkg_iostat_set *bis =
-				per_cpu_ptr(blkg->iostat_cpu, cpu);
-			memset(bis, 0, sizeof(*bis));
-
-			/* Re-initialize the cleared blkg_iostat_set */
-			u64_stats_init(&bis->sync);
-		}
-		memset(&blkg->iostat, 0, sizeof(blkg->iostat));
-		u64_stats_init(&blkg->iostat.sync);
+		blkg_rwstat_reset(&blkg->stat_bytes);
+		blkg_rwstat_reset(&blkg->stat_ios);
 
 		for (i = 0; i < BLKCG_MAX_POLS; i++) {
 			struct blkcg_policy *pol = blkcg_policy[i];
