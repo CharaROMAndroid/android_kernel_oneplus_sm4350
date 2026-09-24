@@ -401,6 +401,7 @@ static ssize_t uid_remove_write(struct file *file,
 {
 	struct uid_entry *uid_entry;
 	struct hlist_node *tmp;
+	int bkt;
 	char uids[128];
 	char *start_uid, *end_uid = NULL;
 	long int uid_start = 0, uid_end = 0;
@@ -423,17 +424,20 @@ static ssize_t uid_remove_write(struct file *file,
 		return -EINVAL;
 	}
 
+	if (uid_start < 0 || uid_end < uid_start ||
+	    (unsigned long)uid_end > (uid_t)-1)
+		return -EINVAL;
+
 	rt_mutex_lock(&uid_lock);
 
-	for (; uid_start <= uid_end; uid_start++) {
-		hash_for_each_possible_safe(hash_table, uid_entry, tmp,
-							hash, (uid_t)uid_start) {
-			if (uid_start == uid_entry->uid) {
-				remove_uid_tasks(uid_entry);
-				hash_del(&uid_entry->hash);
-				kfree(uid_entry);
-			}
-		}
+	/* Iterate existing entries, not every UID in a potentially huge range. */
+	hash_for_each_safe(hash_table, bkt, tmp, uid_entry, hash) {
+		if (uid_entry->uid < uid_start || uid_entry->uid > uid_end)
+			continue;
+
+		remove_uid_tasks(uid_entry);
+		hash_del(&uid_entry->hash);
+		kfree(uid_entry);
 	}
 
 	rt_mutex_unlock(&uid_lock);
