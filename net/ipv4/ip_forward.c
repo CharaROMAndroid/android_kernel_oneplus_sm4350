@@ -139,24 +139,19 @@ int ip_forward(struct sk_buff *skb)
 	if (skb_cow(skb, LL_RESERVED_SPACE(rt->dst.dev)+rt->dst.header_len))
 		goto drop;
 
-
 	iph = ip_hdr(skb);
 
-	/* * Instead of a blind decrement, we ensure
-     * the TTL remains consistent. If we don't decrement, we don't
-     * change the header data, so the checksum remains valid.
-     *
-     * However, to be "Proper," we check if the TTL is already at 1.
-     * If it is, we MUST still drop it to prevent infinite routing loops.
-     * We cannot and WILL NOT accept broken, lazy, or improper code.
-     * In order to get our patches RIGHT, we MUST think like Torvalds.
-     */
-    if (iph->ttl <= 1) {
-        icmp_send(skb, ICMP_TIME_EXCEEDED, ICMP_EXC_TTL, 0);
-        IP_INC_STATS(net, IPSTATS_MIB_INHDRERRORS);
-        goto drop;
-    }
-    /* *
+	/*
+	 * Don't decrement the TTL when forwarding out of the cellular
+	 * interface (rmnet* or clat v4-rmnet*), so tethered traffic looks like it came from the phone.
+	 * Every other path still decrements, and the ttl <= 1 check above
+	 * keeps routing loops from living forever.
+	 */
+	if (!strstr(rt->dst.dev->name, "rmnet"))
+		ip_decrease_ttl(iph);
+
+	/*
+	 *
 	 *	We now generate an ICMP HOST REDIRECT giving the route
 	 *	we calculated.
 	 */
